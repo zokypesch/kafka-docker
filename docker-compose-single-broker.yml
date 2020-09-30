@@ -14,7 +14,7 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 172.28.14.13
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LOG_DIRS: /kafka/kafka-data
+      KAFKA_LOG_DIRS: /kafka-local
       KAFKA_LOG_CLEANER_ENABLE: 'false' # -> brrt tidak di compact alias di delete (compact: hanya state terakhir yang di pertahankan, yang lama di delete)
       KAFKA_LOG_FLUSH_INTERVAL_MESSAGES: 20000 # expire mau di compact atau di delete -> 20000
       KAFKA_LOG_FLUSH_INTERVAL_MS: 10000 # sebelum di delete di keep brp lama in ms ya
@@ -24,4 +24,5 @@ services:
       KAFKA_LOG_RETENTION_MINUTES: 1440
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
     volumes:
+      - /kafka-local:/kafka/kafka-data
       - /var/run/docker.sock:/var/run/docker.sock
