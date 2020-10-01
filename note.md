@@ -1,3 +1,24 @@
+# installation
+sudo apt-get update
+
+apt-get install apt-transport-https ca-certificates curl software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+
+apt-get update
+apt-get install docker-ce
+
+# install git
+sudo apt install git
+
+
+# docker compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
 # check storage
 lsblk
 
@@ -12,23 +33,29 @@ mkdir -p /kafka/zookeper-data/data
 mkdir -p /kafka/zookeper-data/logs
 mkdir -p /kafka/kafka-data
 mount /dev/vdb /kafka (ini tergantung dari lsblk nya)
+umount /dev/vdb
+
+# clone this repo
+git clone https://github.com/zokypesch/kafka-docker
 
 # running
-docker-compose -f docker-compose-single-broker.yml up -d
+cd kafka-docker
+edit file docker-compose-single-broker.yml -> change kafka_advertise_host to IP address
+docker-compose -f docker-compose-single-broker.yml up -d --build
 
 # setting
-docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1001 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_trx_server -e BOOTSTRAP_SERVERS=172.28.14.196:9092 -d debezium/connect:latest
+docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1001 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_trx_server -e BOOTSTRAP_SERVERS=172.28.14.199:9092 -d debezium/connect:latest
 
-docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1002 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_general_server -e BOOTSTRAP_SERVERS=172.28.14.197:9092 -d debezium/connect:latest
+docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1002 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_general_server -e BOOTSTRAP_SERVERS=172.28.14.200:9092 -d debezium/connect:latest
 
-docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1003 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_batch_server -e BOOTSTRAP_SERVERS=172.28.14.198:9092 -d debezium/connect:latest
+docker run -it --rm --name connect -p 8083:8083 -e GROUP_ID=1003 -e CONFIG_STORAGE_TOPIC=my_connect_configs -e OFFSET_STORAGE_TOPIC=my_connect_offsets -e STATUS_STORAGE_TOPIC=my_connect_batch_server -e BOOTSTRAP_SERVERS=172.28.14.201:9092 -d debezium/connect:latest
 
 # running for trx_server
 curl -i -X POST \
 -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 localhost:8083/connectors/ -d \
-'{"name":"transaction","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","tasks.max":"100","database.hostname":"rm-d9j026wg1l28z60gp66640.mysql.ap-southeast-5.rds.aliyuncs.com","database.port":"3306","database.user":"db_admin","database.password":"Pr4K3rj4S3laM4ny4","database.server.name":"dbserver_trx","max.batch.size":16384,"max.queue.size":131072,"offset.flush.timeout.ms":60000,"offset.flush.interval.ms ":15000,"database.whitelist":"transaction","database.history.kafka.bootstrap.servers":"172.28.14.196:9092","database.history.kafka.topic":"dbhistory.transaction","snapshot.mode": "when_needed"}}'
+'{"name":"transaction","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","tasks.max":"100","database.hostname":"rm-d9j026wg1l28z60gp66640.mysql.ap-southeast-5.rds.aliyuncs.com","database.port":"3306","database.user":"db_admin","database.password":"Pr4K3rj4S3laM4ny4","database.server.name":"dbserver_trx","max.batch.size":16384,"max.queue.size":131072,"offset.flush.timeout.ms":60000,"offset.flush.interval.ms ":15000,"database.whitelist":"transaction","database.history.kafka.bootstrap.servers":"172.28.14.199:9092","database.history.kafka.topic":"dbhistory.transaction","snapshot.mode": "when_needed", "gtid.new.channel.position": "latest", "table.whitelist": "trans,trans_reconcile,user_active_course,user_bank_va,purchase_invoice,certificate,credit_user,incentive"}}'
 
 curl -i -X POST \
 -H "Accept:application/json" \
