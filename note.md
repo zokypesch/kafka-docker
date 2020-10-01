@@ -28,7 +28,7 @@ curl -i -X POST \
 -H "Accept:application/json" \
 -H "Content-Type:application/json" \
 localhost:8083/connectors/ -d \
-'{"name":"transaction","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","tasks.max":"100","database.hostname":"rm-d9j026wg1l28z60gp66640.mysql.ap-southeast-5.rds.aliyuncs.com","database.port":"3306","database.user":"db_admin","database.password":"Pr4K3rj4S3laM4ny4","database.server.name":"dbserver_trx","max.batch.size":16384,"max.queue.size":131072,"offset.flush.timeout.ms":60000,"offset.flush.interval.ms ":15000,"database.whitelist":"transaction","database.history.kafka.bootstrap.servers":"172.28.14.196:9092","database.history.kafka.topic":"dbhistory.transaction"}}'
+'{"name":"transaction","config":{"connector.class":"io.debezium.connector.mysql.MySqlConnector","tasks.max":"100","database.hostname":"rm-d9j026wg1l28z60gp66640.mysql.ap-southeast-5.rds.aliyuncs.com","database.port":"3306","database.user":"db_admin","database.password":"Pr4K3rj4S3laM4ny4","database.server.name":"dbserver_trx","max.batch.size":16384,"max.queue.size":131072,"offset.flush.timeout.ms":60000,"offset.flush.interval.ms ":15000,"database.whitelist":"transaction","database.history.kafka.bootstrap.servers":"172.28.14.196:9092","database.history.kafka.topic":"dbhistory.transaction","snapshot.mode": "when_needed"}}'
 
 curl -i -X POST \
 -H "Accept:application/json" \
